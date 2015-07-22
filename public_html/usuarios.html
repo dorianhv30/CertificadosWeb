@@ -8,16 +8,86 @@
     <script src="http://ui-grid.info/docs/grunt-scripts/pdfmake.js"></script>
     <script src="http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js"></script>
     <script src="http://ui-grid.info/release/ui-grid-unstable.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="http://ui-grid.info/release/ui-grid-unstable.css" type="text/css">
-    <link rel="stylesheet" href="main.css" type="text/css">
+    <link rel="stylesheet" href="css/main.css" type="text/css">
   </head>
   <body>
 <div ng-controller="UsuariosCtrl">
+    <button type="button" class="btn btn-primary" ng-click="mostrarFrmNuevo()">
+        <span class="glyphicon glyphicon glyphicon-plus-sign"></span> Nuevo
+    </button>
+    <button type="button" class="btn btn-primary" ng-click="mostrarFrmActualizar()">
+        <span class="glyphicon glyphicon glyphicon-floppy-open"></span> Actualizar
+    </button>
   <br/>
-  <div ui-grid="gridOptions" ui-grid-selection class="grid" ng-hide="filaSeleccionada"></div>
-</div>
-
-
+  <div ui-grid="gridOptions" ui-grid-selection class="grid" ng-show="mostrarGrid">  
+  </div>
+  <br>
+  <div ng-hide="ocultarFrmActualizar">
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Nombre</span>
+          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.nombre">
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Primer Apellido</span>
+          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.primerApellido">
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Segundo Apellido</span>
+          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.segundoApellido">
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Puesto</span>
+          <select class="form-control" ng-model="usuario.idPerfil" ng-options="puesto as puesto.descripcion for puesto in puestos track by puesto.idPerfil">
+          </select>
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Correo</span>
+          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.correo">
+      </div>
+      <br>
+      <button type="button" class="btn btn-success" ng-click="actualizar()">
+          <span class="glyphicon glyphicon-floppy-saved"></span> Guardar
+      </button>
+      <button type="button" class="btn btn-danger" ng-click="cancelar()">
+          <span class="glyphicon glyphicon-floppy-remove"></span> Cancelar
+      </button>
+  </div>
+  <div ng-hide="ocultarFrmNuevo">
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Nombre</span>
+          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.nombre">
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Primer Apellido</span>
+          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.primerApellido">
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Segundo Apellido</span>
+          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.segundoApellido">
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Puesto</span>
+          <select class="form-control" ng-model="usuario.idPerfil" ng-options="puesto as puesto.descripcion for puesto in puestos track by puesto.idPerfil">
+          </select>
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">Correo</span>
+          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.correo">
+      </div>
+      <br>
+      <button type="button" class="btn btn-success" ng-click="guardar()">
+          <span class="glyphicon glyphicon-floppy-saved"></span> Guardar
+      </button>
+      <button type="button" class="btn btn-danger" ng-click="cancelar()">
+          <span class="glyphicon glyphicon-floppy-remove"></span> Cancelar
+      </button>
+  </div>
+  
+</div>    
+      <script src="lib/bootstrap.min.js"></script>
       <script src="controladores/app.js"></script>
   </body>
 </html>

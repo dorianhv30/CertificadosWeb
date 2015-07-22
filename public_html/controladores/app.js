@@ -1,8 +1,64 @@
 var app = angular.module('app', ['ngTouch', 'ui.grid', 'ui.grid.selection']);
 app.controller('UsuariosCtrl', ['$scope', '$http', 'uiGridConstants', function ($scope, $http, uiGridConstants) {
+  //Variables globales
   $scope.usuario = {};
-  $scope.filaSeleccionada = false;
+  $scope.mostrarGrid = true;
+  $scope.ocultarFrmActualizar = true;
+  $scope.ocultarFrmNuevo = true;
+  $scope.fila=-1;
+  $scope.puestos = {};
   
+  // metodos del scope
+  $scope.cancelar = function() {
+       $scope.mostrarGrid = true;
+       $scope.ocultarFrmActualizar = true;
+       $scope.ocultarFrmNuevo = true;  
+   };
+   
+   $scope.actualizar = function() {
+       $http({
+            method: 'PUT',
+            url: 'http://localhost:8080/CertificadosRest/api/usuarios/' + $scope.usuario.idUsuario,
+            data: $scope.usuario
+        }).success(function (result) {
+            $scope.gridOptions.data[$scope.fila] = $scope.usuario; 
+        });
+       $scope.mostrarGrid = true;
+       $scope.ocultarFrmActualizar = true;                  
+   };
+   
+   $scope.guardar = function() {
+       $scope.usuario.estado = 'A';
+       $scope.usuario.clave = 'Temporal123';
+       $scope.usuario.nombreUsuario = $scope.usuario.nombre.substring( 0, 1 ) + $scope.usuario.primerApellido;
+       $http({
+            method: 'POST',
+            url: 'http://localhost:8080/CertificadosRest/api/usuarios/',
+            data: $scope.usuario
+        }).success(function (result) {
+            $scope.gridOptions.data.push($scope.usuario); 
+        });
+        
+       $scope.mostrarGrid = true;
+       $scope.ocultarFrmNuevo = true;                  
+   };
+   
+   $scope.mostrarFrmActualizar = function() {
+       $scope.mostrarGrid = false;
+       $scope.ocultarFrmActualizar = false; 
+       $scope.ocultarFrmNuevo = true;  
+   };
+   
+   $scope.mostrarFrmNuevo = function() {
+       $scope.usuario = {};
+       $scope.mostrarGrid = false;
+       $scope.ocultarFrmActualizar = true; 
+       $scope.ocultarFrmNuevo = false;
+       
+   };
+  
+   
+  // Carga de grid
   $scope.gridOptions = { enableRowSelection: true, enableRowHeaderSelection: false, enableFiltering: true };
 
   $scope.gridOptions.columnDefs = [
@@ -27,12 +83,15 @@ app.controller('UsuariosCtrl', ['$scope', '$http', 'uiGridConstants', function (
   $scope.gridOptions.onRegisterApi = function( gridApi ) {
     $scope.gridApi = gridApi;
     gridApi.selection.on.rowSelectionChanged($scope,function(row){
-        $scope.usuario = angular.toJson(row.entity);
-        $scope.filaSeleccionada = true;
+        $scope.usuario = row.entity;
+        $scope.fila = $scope.gridOptions.data.indexOf(row.entity);
+        $scope.puestoActual = row.entity.idPerfil;
+        $scope.$apply();
       });
     gridApi.core.on.filterChanged( $scope, function() {
-         $scope.filaSeleccionada = false;
+         $scope.mostrarGrid = true;
          $scope.usuario = {};
+         $scope.$apply();
         }); 
   };
 
@@ -43,6 +102,15 @@ app.controller('UsuariosCtrl', ['$scope', '$http', 'uiGridConstants', function (
       // $interval whilst we wait for the grid to digest the data we just gave it
       $scope.gridApi.selection.selectRow($scope.gridOptions.data[0]);
     });
+    
+  $http.get('http://localhost:8080/CertificadosRest/api/perfiles').
+        success(function(data, status, headers, config) {
+          $scope.puestos = data;
+        }).
+        error(function(data, status, headers, config) {
+         alert("Error cargando perfiles" + status)
+        });
+    
 }])
 .filter('mapEstado', function() {
   var EstadoHash = {
