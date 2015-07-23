@@ -18,7 +18,7 @@
     <button type="button" class="btn btn-primary" ng-click="mostrarFrmNuevo()">
         <span class="glyphicon glyphicon glyphicon-plus-sign"></span> Nuevo
     </button>
-    <button type="button" class="btn btn-primary" ng-click="mostrarFrmActualizar()">
+    <button type="button" class="btn btn-primary" ng-click="mostrarFrmActualizar()" ng-disabled="deshabilitaActualizar">
         <span class="glyphicon glyphicon glyphicon-floppy-open"></span> Actualizar
     </button>
   <br/>
@@ -89,5 +89,6 @@
 </div>    
       <script src="lib/bootstrap.min.js"></script>
       <script src="controladores/app.js"></script>
+      <script src="controladores/usuarios.js"></script>
   </body>
 </html>
