@@ -1,0 +1,145 @@
+<!doctype html>
+<html >
+	<head meta charset="utf-8">
+		<meta http-equiv="Content-type" content="text/html;charset=UTF-8">﻿
+		<title>Hello AngularJS</title>
+  		<script src="lib/jquery.min.js"></script>
+		<script src="lib/angular.min.js"></script>
+    	<script src="lib/bootstrap.min.js"></script>
+    	<script src="controller/app.js"></script>
+  		<link rel="stylesheet" href="css/bootstrap.min.css">
+	</head>
+
+	<body ng-app="app" >
+	<div class="container">
+		<form class="form-horizontal" name="formParametros" >
+			<div ng-controller="CertificadoCtrl" ng-init="iniciar();">
+    			<div class="row">
+  					<div class="col-xs-12">
+	    				<div class="form-group">
+							 <label class="control-label col-sm-3" for="slProvincias">Provincia:</label>
+							 <div class="col-sm-3">
+							 	<select id="slProvincias" class="form-control col-sm-6 input-sm" ng-change="cargarCantones(provincia)" ng-model="provincia"  ng-options="item.idProvincia as item.descripcion for item in provincias"></select>
+							 </div>
+						</div>
+					</div>
+				 </div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="slCantones">Cantón:</label>
+							 <div class="col-sm-3">
+							 	<select id="slCantones" class="form-control input-sm" ng-model="canton" ng-change="cargarDistritos(canton)" ng-options="item.idCanton as item.descripcion for item in cantones"></select>
+							 </div>
+						</div>
+					</div>
+				 </div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="slDistritos">Distrito:</label>
+							 <div class="col-sm-3">
+							 	<select id="slDistritos" class="form-control input-sm" ng-model="distrito" ng-options="item.idDistrito as item.descripcion for item in distritos" ></select>
+							 </div>
+						</div>
+					</div>
+				 </div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="direccionRegional">Dirección Regional:</label>
+							 <div class="col-sm-4">
+							 	<input type="text" placeholder="Dirección Regional" class="form-control input-sm" id="direccionRegional" ng-model="parametros.direccionRegional" name="vDireccionRegional" ng-required="true" maxlength="100" minlength="5"/>
+							 	<span style="color:red" ng-show="formParametros.vDireccionRegional.$error.required">
+								<span ng-show="formParametros.vDireccionRegional.$error.required">Este dato es requerido</span>
+								</span>
+							 </div>
+						 </div>
+					</div>
+				</div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="circuito">Circuito:</label>
+							 <div class="col-sm-4">
+							 	<input type="text"  class="form-control input-sm" id="circuito" ng-model="parametros.circuito"/>
+							 </div>
+						 </div>
+					</div>
+				</div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="codigoColegio">Código de Colegio:</label>
+							 <div class="col-sm-4">
+								 <input type="text"  class="form-control input-sm" id="codigoColegio" ng-model="parametros.codigoColegio"/>
+							 </div>
+						 </div>
+					</div>
+				</div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="nombreColegio">Nombre del Colegio:</label>
+							 <div class="col-sm-4">
+							 	<input type="text"  class="form-control input-sm" id="nombreColegio" ng-model="parametros.nombreColegio"/>
+							 </div>
+						 </div>
+					</div>
+				</div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="correoColegio">Email del Colegio:</label>
+							 <div class="col-sm-4">
+							 	<input type="text"  class="form-control input-sm" id="correoColegio" ng-model="parametros.correoColegio"/>
+							 </div>
+						 </div>
+					</div>
+				</div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="telefonoColegio">Teléfono del Colegio:</label>
+							 <div class="col-sm-4">
+							 	<input type="text"  class="form-control input-sm" id="telefonoColegio" ng-model="parametros.telefonoColegio"/>
+							 </div>
+						 </div>
+					</div>
+				</div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="codigoCertificacion">Código de Certificaciones:</label>
+							 <div class="col-sm-4">
+							 	<input type="text"  class="form-control input-sm" id="codigoCertificacion" ng-model="parametros.codigoCertificacion"/>
+							 </div>
+						 </div>
+					</div>
+				</div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+							 <label class="control-label col-sm-3" for="mensajeEncabezado">Encabezado de Certificaciones:</label>
+							 <div class="col-sm-4">
+							 	<textarea type="text"  class="form-control input-sm" id="mensajeEncabezado" ng-model="parametros.mensajeEncabezado">
+							 	</textarea>
+							 </div>
+						 </div>
+					</div>
+				</div>
+    			<div class="row">
+  					<div class="col-xs-12">
+		    			<div class="form-group">
+  							<div class="col-sm-8">
+						 	<button ng-click="guardarParametros()" class="btn btn-small btn-primary" style="float:right" type="button" ng-disabled="formParametros.$invalid">Guardar
+						 	</button>
+						 </div>
+						 </div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	</body>
+</html>
