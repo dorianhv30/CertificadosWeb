@@ -1,8 +1,8 @@
-app.controller('CertificadoCtrl', function ($scope, $http) {
+appParametros.controller('CertificadoCtrl', ['$scope', '$http', function ($scope, $http) {
     $scope.provincias = [];
     $scope.cantones = [];
     $scope.distritos = [];
-    $scope.provincia
+    $scope.provincia;
 
       $scope.cargarProvincias = function(){
 	    $http({
@@ -13,7 +13,7 @@ app.controller('CertificadoCtrl', function ($scope, $http) {
 	        $scope.provincia = $scope.provincias[0].idProvincia;
 	        $scope.cargarCantones($scope.provincia);
 	    });       
-	  }
+	  };
       $scope.cargarCantones = function(item){
 	    $http({
             method: 'GET',
@@ -23,7 +23,7 @@ app.controller('CertificadoCtrl', function ($scope, $http) {
         $scope.canton = $scope.cantones[0].idCanton;
         $scope.cargarDistritos($scope.canton);
     	});
-	  }  
+	  };  
 
 	  $scope.cargarDistritos = function(item){
 	    $http({
@@ -33,7 +33,7 @@ app.controller('CertificadoCtrl', function ($scope, $http) {
         $scope.distritos = result;
         $scope.distrito = $scope.distritos[0].idDistrito;
     	});
-	  } 
+	  }; 
 
 	  $scope.iniciar = function(){
         $http({
@@ -63,7 +63,7 @@ app.controller('CertificadoCtrl', function ($scope, $http) {
 		    	});
 	    	});       
     	});
-	  } 
+	  };
 
 	   $scope.guardarParametros = function(){
 	   	$scope.parametros.idDistrito.idDistrito = $scope.distrito;
@@ -74,5 +74,5 @@ app.controller('CertificadoCtrl', function ($scope, $http) {
         }).success(function (result) {
         	console.log("test");
     	});
-	  } 
-});
+	  }; 
+}]);

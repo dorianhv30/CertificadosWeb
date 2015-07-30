@@ -1,16 +1,17 @@
 <!doctype html>
-<html >
+<html ng-app="appParametros">
 	<head meta charset="utf-8">
 		<meta http-equiv="Content-type" content="text/html;charset=UTF-8">﻿
 		<title>Hello AngularJS</title>
   		<script src="lib/jquery.min.js"></script>
-		<script src="lib/angular.min.js"></script>
     	<script src="lib/bootstrap.min.js"></script>
-    	<script src="controller/app.js"></script>
   		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<script src="lib/angular.min.js"></script>
+    	<script src="controladores/app.js"></script>
+    	<script src="controladores/parametros.js"></script>
 	</head>
 
-	<body ng-app="app" >
+	<body >
 	<div class="container">
 		<form class="form-horizontal" name="formParametros" >
 			<div ng-controller="CertificadoCtrl" ng-init="iniciar();">
