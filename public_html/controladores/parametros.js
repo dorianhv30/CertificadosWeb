@@ -7,7 +7,7 @@ appParametros.controller('CertificadoCtrl', ['$scope', '$http', function ($scope
       $scope.cargarProvincias = function(){
 	    $http({
 	            method: 'GET',
-	            url: 'http://localhost:8080/CertificadosSRV/api/provincia'
+	            url: 'http://localhost:8080/CertificadosRest/api/provincia'
 	        }).success(function (result) {
 	        $scope.provincias = result;
 	        $scope.provincia = $scope.provincias[0].idProvincia;
@@ -17,7 +17,7 @@ appParametros.controller('CertificadoCtrl', ['$scope', '$http', function ($scope
       $scope.cargarCantones = function(item){
 	    $http({
             method: 'GET',
-            url: 'http://localhost:8080/CertificadosSRV/api/provincia/cantones/' + item
+            url: 'http://localhost:8080/CertificadosRest/api/provincia/cantones/' + item
         }).success(function (result) {
         $scope.cantones = result;
         $scope.canton = $scope.cantones[0].idCanton;
@@ -28,7 +28,7 @@ appParametros.controller('CertificadoCtrl', ['$scope', '$http', function ($scope
 	  $scope.cargarDistritos = function(item){
 	    $http({
             method: 'GET',
-            url: 'http://localhost:8080/CertificadosSRV/api/canton/distritos/' + item
+            url: 'http://localhost:8080/CertificadosRest/api/canton/distritos/' + item
         }).success(function (result) {
         $scope.distritos = result;
         $scope.distrito = $scope.distritos[0].idDistrito;
@@ -38,24 +38,24 @@ appParametros.controller('CertificadoCtrl', ['$scope', '$http', function ($scope
 	  $scope.iniciar = function(){
         $http({
             method: 'GET',
-            url: 'http://localhost:8080/CertificadosSRV/api/parametro/' + 1
+            url: 'http://localhost:8080/CertificadosRest/api/parametro/' + 1
         }).success(function (result) {
         $scope.parametros = result;
         	$http({
 	            method: 'GET',
-	            url: 'http://localhost:8080/CertificadosSRV/api/provincia'
+	            url: 'http://localhost:8080/CertificadosRest/api/provincia'
 	        }).success(function (result) {
 	        	$scope.provincias = result;
         		$scope.provincia = $scope.parametros.idDistrito.idCanton.idProvincia.idProvincia;
         		$http({
 		            method: 'GET',
-		            url: 'http://localhost:8080/CertificadosSRV/api/provincia/cantones/' + $scope.parametros.idDistrito.idCanton.idProvincia.idProvincia
+		            url: 'http://localhost:8080/CertificadosRest/api/provincia/cantones/' + $scope.parametros.idDistrito.idCanton.idProvincia.idProvincia
 		    	}).success(function (result) {
 		        	$scope.cantones = result;
        				$scope.canton = $scope.parametros.idDistrito.idCanton.idCanton;
        				$http({
 			        	method: 'GET',
-			        	url: 'http://localhost:8080/CertificadosSRV/api/canton/distritos/' + $scope.parametros.idDistrito.idCanton.idCanton
+			        	url: 'http://localhost:8080/CertificadosRest/api/canton/distritos/' + $scope.parametros.idDistrito.idCanton.idCanton
 			    }).success(function (result) {
 			        $scope.distritos = result;
 			        $scope.distrito = $scope.parametros.idDistrito.idDistrito;
@@ -69,7 +69,7 @@ appParametros.controller('CertificadoCtrl', ['$scope', '$http', function ($scope
 	   	$scope.parametros.idDistrito.idDistrito = $scope.distrito;
 	    $http({
             method: 'PUT',
-            url: 'http://localhost:8080/CertificadosSRV/api/parametro/' + $scope.parametros.idParametro,
+            url: 'http://localhost:8080/CertificadosRest/api/parametro/' + $scope.parametros.idParametro,
             data: $scope.parametros
         }).success(function (result) {
         	console.log("test");

@@ -56,6 +56,7 @@ app.controller('UsuariosCtrl', ['$scope', '$http', 'uiGridConstants', function (
        $scope.mostrarGrid = false;
        $scope.ocultarFrmActualizar = true; 
        $scope.ocultarFrmNuevo = false;
+       $scope.deshabilitaActualizar = true;
        
    };
   

@@ -56,34 +56,50 @@
       </button>
   </div>
   <div ng-hide="ocultarFrmNuevo">
-      <div class="input-group">
-          <span class="input-group-addon" id="basic-addon1">Nombre</span>
-          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.nombre">
-      </div>
-      <div class="input-group">
-          <span class="input-group-addon" id="basic-addon1">Primer Apellido</span>
-          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.primerApellido">
-      </div>
-      <div class="input-group">
-          <span class="input-group-addon" id="basic-addon1">Segundo Apellido</span>
-          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.segundoApellido">
-      </div>
-      <div class="input-group">
-          <span class="input-group-addon" id="basic-addon1">Puesto</span>
-          <select class="form-control" ng-model="usuario.idPerfil" ng-options="puesto as puesto.descripcion for puesto in puestos track by puesto.idPerfil">
-          </select>
-      </div>
-      <div class="input-group">
-          <span class="input-group-addon" id="basic-addon1">Correo</span>
-          <input type="text" class="form-control" aria-describedby="basic-addon1" ng-model="usuario.correo">
-      </div>
-      <br>
-      <button type="button" class="btn btn-success" ng-click="guardar()">
-          <span class="glyphicon glyphicon-floppy-saved"></span> Guardar
-      </button>
-      <button type="button" class="btn btn-danger" ng-click="cancelar()">
-          <span class="glyphicon glyphicon-floppy-remove"></span> Cancelar
-      </button>
+      <form class="form-horizontal" name="formNuevo" >
+          <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">Nombre</span>
+              <input type="text" placeholder="Nombre" class="form-control input-sm" id="nombre" ng-model="usuario.nombre" name="vNombre" ng-required="true" maxlength="100" minlength="5"/>
+              <span style="color:red" ng-show="formParametros.vNombre.$error.required">
+                  <span ng-show="formParametros.vNombre.$error.required">Este dato es requerido</span>
+              </span>
+          </div>
+          <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">Primer Apellido</span>
+              <input type="text" placeholder="Primer Apellido" class="form-control input-sm" id="primerApellido" ng-model="usuario.primerApellido" name="vPrimerApellido" ng-required="true" maxlength="100" minlength="5"/>
+              <span style="color:red" ng-show="formParametros.vPrimerApellido.$error.required">
+                  <span ng-show="formParametros.vPrimerApellido.$error.required">Este dato es requerido</span>
+              </span>
+          </div>
+          <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">Segundo Apellido</span>
+              <input type="text" placeholder="Segundo Apellido" class="form-control input-sm" id="segundoApellido" ng-model="usuario.segundoApellido" name="vSegundoApellido" ng-required="true" maxlength="100" minlength="5"/>
+              <span style="color:red" ng-show="formParametros.vSegundoApellido.$error.required">
+                  <span ng-show="formParametros.vSegundoApellido.$error.required">Este dato es requerido</span>
+              </span>
+          </div>
+          <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">Puesto</span>
+              <select class="form-control" ng-model="usuario.idPerfil" ng-options="puesto as puesto.descripcion for puesto in puestos track by puesto.idPerfil">
+              </select>
+          </div>
+          <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">Correo</span>
+              <input type="text" placeholder="Correo electr&oacute;nico" class="form-control input-sm" id="correo" ng-model="usuario.correo" name="vCorreo" ng-required="true" maxlength="100" minlength="5"/>
+              <span style="color:red" ng-show="formParametros.vCorreo.$error.required">
+                  <span ng-show="formParametros.vCorreo.$error.required">Este dato es requerido</span>
+              </span>
+          </div>
+          <br>
+          <button type="button" class="btn btn-success" ng-click="guardar()">
+              <span class="glyphicon glyphicon-floppy-saved"></span> Guardar
+          </button>
+          <button type="button" class="btn btn-danger" ng-click="cancelar()">
+              <span class="glyphicon glyphicon-floppy-remove"></span> Cancelar
+          </button> 
+
+      </form>
+
   </div>
   
 </div>    
