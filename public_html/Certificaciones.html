@@ -1,0 +1,46 @@
+<!doctype html>
+<html ng-app="app">
+    <head>
+        <title>Hello AngularJS</title>
+        <script src="lib/jquery.min.js"></script>       
+        <script src="lib/angular.min.js"></script>
+         <link rel="stylesheet" href="css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container">
+        <form class="form-horizontal" name="formParametros" >
+            <div ng-controller="CertificacionesCtrl" ng-init="inicializar()" >
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="slCertificaciones">Certificaciones</label>
+                            <div class="col-sm-3">
+                                <select id="slCertificaciones" class="form-control col-sm-6 input-sm" ng-model="certificacion"  ng-options="item as item.descripcion + '&nbsp;-&nbsp;' + item.codigoPlantilla for item in certificaciones"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3" for="slEstudiante">Estudiante:</label>
+                            <div class="col-sm-3">
+                                <select id="slEstudiante" class="form-control col-sm-6 input-sm" ng-model="estudiante"  ng-options="item as item.estudiante.nombre for item in estudiantesxnivel"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success" ng-click="generar()">
+          <span class="glyphicon glyphicon-floppy-saved"></span> Generar
+      </button>
+                <p ng-if="mostrar"> algo </p>
+    <certificacion ng-if="mostrar"> </certificacion>
+            </div>
+        </form>
+    </div>
+        <script src="lib/bootstrap.min.js"></script>
+        <script src="controladores/appCertificaciones.js"></script>
+        <script src="controladores/certificaciones.js"></script>
+        <script src="directivas/certificacion.js"></script>
+    </body>
+</html>
