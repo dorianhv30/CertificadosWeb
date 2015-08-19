@@ -26,7 +26,8 @@ app.controller('CertificacionesCtrl', ['$scope', '$http','$compile', function ($
     $scope.$watch('certificacion', function() {
         $scope.estudiantesxnivel = $.grep( $scope.estudiantes, function( n ) {
                                         return ( n.nivel.idNivel === $scope.certificacion.idNivel.idNivel);;
-                                      });        
+                                      });
+        $scope.estudiante = $scope.estudiantesxnivel[0];
   });
   
   $scope.generar = function() {
