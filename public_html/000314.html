@@ -1,6 +1,19 @@
 <div>
-    Certificacion {{templateid.descripcion}}<br>
-    Certificacion {{templateid.codigoPlantilla}}<br>
-    otra plantilla
+    <div> 
+    En calidad de subdirector del Colegio Técnico Profesional de Buenos Aires, Código 4170 
+
+Centro Educativo Público, circuito 01 de la Dirección Regional Grande de El Térraba, 
+
+Ministerio de Educación Pública, por este medio certifico que {{estudianteinfo.estudiante.primerApellido}} {{estudianteinfo.estudiante.segundoApellido}} {{estudianteinfo.estudiante.nombre}}, 
+
+número  de   identidad {{estudianteinfo.estudiante.cedula}}, cursó y aprobó  en esta institución el sétimo nivel de la 
+
+Educación General Básica,  en el año {{estudianteinfo.egreso  | cantidadALetras}}.
+    </div>
+    <div>Promedio Ponderado: {{estudianteinfo.promedioPonderado}}</div>
+    <div> Es conforme: Al  ser el día {{diaActual |date:'dd'}} del mes de {{mesActual}} del {{fechaActual  | cantidadALetras}} a solicitud del
+
+interesado (a) para efectos personales.</div>
     
+     
 </div>

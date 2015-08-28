@@ -6,6 +6,7 @@ app.controller('CertificacionesCtrl', ['$scope', '$http','$compile', function ($
     $scope.estudiante;
     $scope.mostrar = false;
     
+    
     $scope.inicializar = function(){           
 	    $http({
 	            method: 'GET',
@@ -33,7 +34,7 @@ app.controller('CertificacionesCtrl', ['$scope', '$http','$compile', function ($
   $scope.generar = function() {
        $scope.mostrar = true;
    };
-       
+         
 }]);
 
 
