@@ -1,0 +1,271 @@
+USE [msdb]
+GO
+/****** Object:  StoredProcedure [dbo].[procBackupFull_Encrypt]    Script Date: 10/4/2016 2:20:47 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+ALTER PROCEDURE [dbo].[procBackupFull_Encrypt]	@BaseDatos VARCHAR(200) = NULL
+AS 
+BEGIN TRY
+	
+	DECLARE
+	@DeviceName			VARCHAR(100),
+	@DevicePath			VARCHAR(255),
+	@Backup_Set			VARCHAR(128),
+	@Backup_Set_Name	VARCHAR(128),
+	@MediaName			VARCHAR(128),
+	@MediaDescription	VARCHAR(255),
+	@Descripcion		VARCHAR(255),
+	@DiaSemana			VARCHAR(50),	
+	@NumDiaSemana		INTEGER,
+	@FechaActual		VARCHAR (20),
+	@FechaCalculada		VARCHAR (20),
+	@HoraActual			VARCHAR (2),
+	@backupSetId		INT,
+	@ErrorNumber		INT,
+	@MessageError		NVARCHAR(MAX)
+
+	SET DATEFIRST 7 --Por default 7 = Sunday
+	SET XACT_ABORT ON
+    SET NOCOUNT ON
+    /*****************************************
+	CONFIGURACION DE VARIABLES DEL BACKUP FULL
+	*****************************************/
+	SET @FechaActual = (SELECT CONVERT(VARCHAR,getdate(),120))
+	SET @NumDiaSemana = (SELECT datepart(dw,getdate()))
+	SET @DiaSemana = (select datename(dw,getdate()))
+	SET @Descripcion = @BaseDatos + '_' + @FechaActual 
+	SET @MediaName = 'Conjunto de Respaldos FULL de ' + @BaseDatos
+	SET @MediaDescription = 'Respaldo de D,L,K,M,J,V,S de ' + @BaseDatos
+	SET @FechaCalculada = (SELECT DATEADD(dd,-7,GETDATE()))	
+	SET @backupSetId = 0
+
+	----------------------------------------------------------
+	-- Creacion del device de respaldo
+	----------------------------------------------------------
+	SET NOCOUNT OFF
+
+	SELECT @DevicePath =
+		CASE @BaseDatos
+			WHEN 'MARCSO'					THEN 'D:\DAI\Regional\MARCSO_STG\MARCSO\BACKUPS\FULL\' +  RTRIM(@BaseDatos) + '_FULL_ENCRYPT_STG.bak'
+			WHEN 'SIXPRO_MARCSO'			THEN 'D:\DAI\Regional\MARCSO_STG\SIXPRO_MARCSO\BACKUPS\FULL\' +  RTRIM(@BaseDatos) + '_FULL_ENCRYPT_STG.bak'
+			WHEN 'SIXPROSOX'				THEN 'D:\DAI\Regional\MARCSO_STG\SIXPROSOX\BACKUPS\FULL\' +  RTRIM(@BaseDatos) + '_FULL_ENCRYPT_STG.bak'
+			WHEN 'MASTER'					THEN 'D:\DAI\Regional\MARCSO_STG\MASTER\BACKUPS\FULL\' +  RTRIM(@BaseDatos) + '_FULL_ENCRYPT_STG.bak'
+			WHEN 'MSDB'						THEN 'D:\DAI\Regional\MARCSO_STG\MSDB\FULL\' +  RTRIM(@BaseDatos) + '_FULL_ENCRYPT_STG.bak'
+			WHEN 'ReportServer$MARCSO_STG'	THEN 'D:\DAI\Regional\MARCSO_STG\REPORTSERVER\BACKUPS\FULL\' +  RTRIM(@BaseDatos) + '_FULL_ENCRYPT_STG.bak'
+		END
+		
+	SET @DeviceName = RTRIM(@BaseDatos) + '_BackupFull_Encrypt_STG' 
+
+	IF (SELECT COUNT(NAME) 
+		FROM MASTER.sys.sysdevices 
+		WHERE NAME = @DeviceName) < '1'
+		
+		BEGIN		
+			SELECT 'Mensaje: ' + @DeviceName + ' El dispositivo de respaldo no existe, se procederá a crearlo, por primera y única vez.'	AS DeviceMessage	
+			
+			--Debe pertenecer al rol fijo de servidor diskadmin.
+			EXEC MASTER..sp_addumpdevice 'disk',@DeviceName,@DevicePath			
+		END
+	
+	------------------------------------------
+	-- Ejecuta Respaldo Completo de BaseDatos
+	-----------------------------------------
+	IF DB_ID(@BaseDatos) IS NOT NULL 
+		BEGIN
+			SELECT 'Hora de Inicio: ' + CAST(GETDATE() AS VARCHAR(25)) AS Backup_Start_Date
+			
+			/********************************************************
+			CHECKPOINT. Esto asegurará que todas las páginas de memoria 
+			con transacciones que han sido confirmadas en el log de 
+			transacciones con COMMIT. se han escritas en los datafiles.
+			**********************************************************/
+			
+			CHECKPOINT;
+			
+
+			/*=============================================================================
+			Cantidad máxima de BackupSet por semana = 7 Backup Full.
+
+			EXPLICACIÓN:
+			
+			Se ha programado en el calendario del job de Backup Full, que este se lleve
+			a cabo en el siguiente horario:
+
+				Se ejecutará todos los días de la semana a las 10:00 p.m.
+			
+			El archivo de respaldo FULL será recolectado todos los días por la herramienta TSM
+			desde la ubicación dónde se realizó la copia de respaldo local.
+
+			El respaldo FULL incluye todos los cambios de la base de datos, tanto en los Datafiles
+			como también en Logfiles.
+
+			El dispositivo o contenedor de respaldos FULL acumulará los BackupSet durante los
+			7 días de la semana, comenzando en el día Domingo como primer día de la semana y 
+			finalizando el día Sábado como el final de la semana. El primer día, el contenedor
+			se reiniciará o sobre-escribirá para permitir que el espacio pueda ser reutilizado,
+			o bien, cuando el dispositivo tenga 7 conjuntos de respaldos completos.
+
+			Para que el mismo sea útil dentro de la estrategia de recuperación: 
+			1. Se deberá recuperar el archivo desde el medio magnético externo. 
+			2. Validar la integridad del archivo con el comando RESTORE VERIFYONLY.
+			3. Seleccionar la posición del backupset que corresponde con la fecha a restaurar.
+
+			==============================================================================*/
+
+
+			SELECT @Backup_Set_Name = name, @backupSetId = position
+			FROM msdb..backupset AS a
+			INNER JOIN msdb..backupmediafamily AS b
+			ON a.media_set_id = b.media_set_id
+			WHERE a.database_name = @BASEDATOS
+			AND backup_set_id=(SELECT max(backup_set_id) FROM msdb..backupset WHERE database_name=@BASEDATOS )					
+			AND b.logical_device_name = @DeviceName
+
+			SELECT  @Backup_Set_Name AS Before_Backup_Set_Name, 
+					@backupSetId	 AS before_count_backup_set
+
+			SET @Backup_Set = @DeviceName + '_' + @FechaActual
+
+			IF (@backupSetId >= 7) OR (@NumDiaSemana = 1)
+			BEGIN
+					EXEC sp_delete_backuphistory @FechaCalculada				 
+
+					IF @BASEDATOS = 'MARCSO'
+					BEGIN																
+						IF EXISTS(SELECT name,is_master_key_encrypted_by_server FROM sys.databases WHERE name = 'master' AND is_master_key_encrypted_by_server = 1)
+						BEGIN
+							IF EXISTS(SELECT * FROM master.sys.certificates WHERE name LIKE 'MASTER_CERT' AND pvt_key_encryption_type_desc = 'ENCRYPTED_BY_MASTER_KEY')
+							BEGIN							
+								BACKUP DATABASE @BASEDATOS
+								TO  @DeviceName
+								WITH INIT,
+								NOFORMAT,   
+								NAME = @Backup_Set, 
+								MEDIANAME = @MediaName,
+								MEDIADESCRIPTION =  @MediaDescription ,
+								DESCRIPTION = @Descripcion,
+								SKIP, 
+								NOREWIND, 
+								NOUNLOAD, 
+								BLOCKSIZE = 65536, 
+								COMPRESSION,
+								STATS = 10, 
+								CHECKSUM,
+								ENCRYPTION(ALGORITHM = AES_256, SERVER CERTIFICATE = MASTER_CERT);							
+							END
+						END
+					ELSE
+					BEGIN
+						BACKUP DATABASE @BASEDATOS
+						TO  @DeviceName
+						WITH INIT,
+						NOFORMAT,   
+						NAME = @Backup_Set, 
+						MEDIANAME = @MediaName,
+						MEDIADESCRIPTION =  @MediaDescription ,
+						DESCRIPTION = @Descripcion,
+						SKIP, 
+						NOREWIND, 
+						NOUNLOAD, 
+						BLOCKSIZE = 65536, 
+						COMPRESSION,
+						STATS = 10, 
+						CHECKSUM;
+					END
+			
+			END
+			ELSE
+			BEGIN
+				IF @BASEDATOS = 'MARCSO'
+				BEGIN																
+					IF EXISTS(SELECT name,is_master_key_encrypted_by_server FROM sys.databases WHERE name = 'master' AND is_master_key_encrypted_by_server = 1)
+					BEGIN
+						IF EXISTS(SELECT * FROM master.sys.certificates WHERE name LIKE 'MASTER_CERT' AND pvt_key_encryption_type_desc = 'ENCRYPTED_BY_MASTER_KEY')
+						BEGIN	
+							BACKUP DATABASE @BASEDATOS
+							TO  @DeviceName
+							WITH NOINIT,
+							NOFORMAT,   
+							NAME = @Backup_Set, 
+							MEDIANAME = @MediaName,
+							MEDIADESCRIPTION =  @MediaDescription ,
+							DESCRIPTION = @Descripcion,
+							SKIP, 
+							NOREWIND, 
+							NOUNLOAD, 
+							BLOCKSIZE = 65536, 
+							COMPRESSION, 		 
+							STATS = 10, 
+							CHECKSUM,
+							ENCRYPTION(ALGORITHM = AES_256, SERVER CERTIFICATE = MASTER_CERT); 
+						END
+					END
+				END
+				ELSE
+					BACKUP DATABASE @BASEDATOS
+					TO  @DeviceName
+					WITH NOINIT,
+					NOFORMAT,   
+					NAME = @Backup_Set, 
+					MEDIANAME = @MediaName,
+					MEDIADESCRIPTION =  @MediaDescription ,
+					DESCRIPTION = @Descripcion,
+					SKIP, 
+					NOREWIND, 
+					NOUNLOAD, 
+					BLOCKSIZE = 65536, 
+					COMPRESSION,		 
+					STATS = 10, 
+					CHECKSUM;
+
+			END
+			
+			------------------------------------------------------------
+			-- Ejecuta Comprobación de Respaldo Full de BaseDatos
+			------------------------------------------------------------
+					
+			SELECT @Backup_Set_Name = name, @backupSetId = position
+			FROM msdb..backupset AS a
+			INNER JOIN msdb..backupmediafamily AS b
+			ON a.media_set_id = b.media_set_id
+			WHERE a.database_name = @BASEDATOS
+			AND backup_set_id=(SELECT max(backup_set_id) FROM msdb..backupset WHERE database_name=@BASEDATOS )					
+			AND b.logical_device_name = @DeviceName
+			
+			IF @backupSetId IS NULL 
+				BEGIN 
+					raiserror(N'Verify failed. Backup information not found.', 16, 1) 
+				END
+			ELSE
+				BEGIN
+					SELECT	@Backup_Set_Name AS After_Backup_Set_Name,
+							@backupSetId	AS  after_count_backup_set
+					SELECT 'Hora de Finalización: ' + CAST(GETDATE() AS VARCHAR(25)) AS Backup_Finish_Date
+				END
+
+		END	
+		SET NOCOUNT OFF
+	END
+
+END TRY
+BEGIN CATCH
+	IF @@ERROR <> 0
+		BEGIN
+			SELECT
+				@ErrorNumber = ERROR_NUMBER(),
+				--ERROR_SEVERITY(),
+				--ERROR_STATE(),
+				--ERROR_PROCEDURE(),
+				--ERROR_LINE(),
+				@MessageError = ERROR_MESSAGE();
+		END
+END CATCH
+
+
+
+
+
